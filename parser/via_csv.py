@@ -1,4 +1,5 @@
 from parser import parser
+import const
 import re
 import region
 from typing import List, Dict
@@ -53,8 +54,8 @@ def to_region(obj: Dict, image_folder: str = '') -> region.Region:
     shape_info = json.loads(obj['region_shape_attributes'])
     label_info = json.loads(obj['region_attributes'])
     label = region.Label(
-        ku_id=int(label_info.get('KU_ID', DEFAULT_LABEL_ID)),
-        group_id=int(label_info.get('GROUP_ID', DEFAULT_LABEL_ID)),
+        ku_id=int(label_info.get('KU_ID', const.DEFAULT_LABEL_ID)),
+        group_id=int(label_info.get('GROUP_ID', const.DEFAULT_LABEL_ID)),
     )
     return region.Region(
         file=file,
@@ -83,7 +84,6 @@ class ViaCSVParser(parser.Parser):
                 if row['region_count'] == str(0):
                     continue
 
-                pprint(row)
                 out.append(to_region(row, self._image_folder))
 
         return out
