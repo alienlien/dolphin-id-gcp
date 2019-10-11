@@ -1,5 +1,6 @@
 import attr
 import logging
+import const
 
 LOGGER = logging.getLogger(__name__)
 
@@ -23,8 +24,17 @@ class ImageFile():
 
 @attr.s
 class Label():
+    # TODO: -> Labels: with different type, id, and extra info.
     ku_id = attr.ib(type=int)
     group_id = attr.ib(type=int)
+
+    def to_label_str(self) -> str:
+        if self.ku_id != const.DEFAULT_LABEL_ID:
+            return 'ku_{0:03d}'.format(self.ku_id)
+        elif self.group_id != const.DEFAULT_LABEL_ID:
+            return 'group_{0:02d}'.format(self.group_id)
+        else:
+            return 'unknown'
 
 
 @attr.s
@@ -45,14 +55,18 @@ class Region():
     def y_max(self) -> int:
         return self.y_min + self.y_length
 
+    @property
     def x_min_rel(self) -> float:
         return get_relative_val(self.x_min, self.file.x_size)
 
+    @property
     def y_min_rel(self) -> float:
         return get_relative_val(self.y_min, self.file.y_size)
 
+    @property
     def x_max_rel(self) -> float:
         return get_relative_val(self.x_max, self.file.x_size)
 
+    @property
     def y_max_rel(self) -> float:
         return get_relative_val(self.y_max, self.file.y_size)
