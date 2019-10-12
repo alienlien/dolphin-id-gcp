@@ -1,5 +1,6 @@
 import attr
 import logging
+from typing import List
 import const
 
 LOGGER = logging.getLogger(__name__)
@@ -24,17 +25,16 @@ class ImageFile():
 
 @attr.s
 class Label():
-    # TODO: -> Labels: with different type, id, and extra info.
-    ku_id = attr.ib(type=int)
-    group_id = attr.ib(type=int)
+    tp = attr.ib(type=str)
+    id = attr.ib(type=int)
+    extra = attr.ib(type=dict, default={})
 
-    def to_label_str(self) -> str:
-        if self.ku_id != const.DEFAULT_LABEL_ID:
-            return 'ku_{0:03d}'.format(self.ku_id)
-        elif self.group_id != const.DEFAULT_LABEL_ID:
-            return 'group_{0:02d}'.format(self.group_id)
-        else:
-            return 'unknown'
+    def __str__(self):
+        if self.tp == const.TYPE_KU_ID:
+            return 'ku_{0:03d}'.format(self.id)
+
+        if self.tp == const.TYPE_GROUP_ID:
+            return '{0}_{1:02d}'.format(self.extra['voyager'], self.id)
 
 
 @attr.s
@@ -45,7 +45,7 @@ class Region():
     y_min = attr.ib(type=int)
     x_length = attr.ib(type=int)
     y_length = attr.ib(type=int)
-    label = attr.ib(type=Label)
+    labels = attr.ib(type=List[Label])
 
     @property
     def x_max(self) -> int:
