@@ -22,6 +22,9 @@ class ImageFile():
     x_size = attr.ib(type=int)
     y_size = attr.ib(type=int)
 
+    def is_valid(self) -> bool:
+        return self.x_size > 0 and self.y_size > 0
+
 
 @attr.s
 class Label():
@@ -70,3 +73,6 @@ class Region():
     @property
     def y_max_rel(self) -> float:
         return get_relative_val(self.y_max, self.file.y_size)
+
+    def is_valid(self) -> bool:
+        return self.file.is_valid()
