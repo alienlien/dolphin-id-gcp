@@ -37,8 +37,15 @@ def prefix_for_filename(fname):
     return re.findall('\d+', group_name)[0]
 
 
-def to_region(obj: Dict, image_folder: str = '') -> region.Region:
-    file_path = os.path.join(image_folder, obj['#filename'])
+def to_region(
+    obj: Dict, image_folder: str = '', voyager: str = ''
+) -> region.Region:
+    filename = obj['#filename']
+    file_path = os.path.join(image_folder, filename)
+
+    if not voyager:
+        voyager = prefix_for_filename(filename)
+
     if os.path.exists(file_path):
         img = Image.open(file_path)
         (x_size, y_size) = img.size
@@ -53,10 +60,30 @@ def to_region(obj: Dict, image_folder: str = '') -> region.Region:
     )
     shape_info = json.loads(obj['region_shape_attributes'])
     label_info = json.loads(obj['region_attributes'])
-    label = region.Label(
-        ku_id=int(label_info.get('KU_ID', const.DEFAULT_LABEL_ID)),
-        group_id=int(label_info.get('GROUP_ID', const.DEFAULT_LABEL_ID)),
-    )
+
+    labels = []
+
+    ku_id = label_info.get(ku_id_key_1, '') or label_info.get(ku_id_key_2, '')
+    if ku_id:
+        label = region.Label(
+            tp=const.TYPE_KU_ID,
+            id=int(ku_id),
+        )
+        labels.append(label)
+
+    group_id = label_info.get(group_id_key_1,
+                              '') or label_info.get(group_id_key_2, '')
+    if group_id:
+        extra = {
+            'voyager': voyager,
+        }
+        label = region.Label(
+            tp=const.TYPE_GROUP_ID,
+            id=int(group_id),
+            extra=extra,
+        )
+        labels.append(label)
+
     return region.Region(
         file=file,
         shape=shape_info['name'],
@@ -64,7 +91,7 @@ def to_region(obj: Dict, image_folder: str = '') -> region.Region:
         y_min=int(shape_info['y']),
         x_length=int(shape_info['width']),
         y_length=int(shape_info['height']),
-        label=label,
+        labels=labels,
     )
 
 
