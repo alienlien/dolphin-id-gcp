@@ -15,12 +15,12 @@ def to_gcp_region(
     location = [
         obj.x_min_rel,
         obj.y_min_rel,
-        obj.x_max_rel,
-        obj.y_min_rel,
-        obj.x_min_rel,
-        obj.y_max_rel,
+        '',
+        '',
         obj.x_max_rel,
         obj.y_max_rel,
+        '',
+        '',
     ]
     return [
         tp.name,
