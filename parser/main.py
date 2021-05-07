@@ -1,17 +1,51 @@
-from parser import via_csv, gcp
-from pprint import pprint
-import os.path
+import argparse
 import os
-import region as r
-from typing import List, Dict
+import os.path
 from collections import defaultdict
+from parser import gcp, via_csv
+from typing import Dict, List
+
 import attr
+import region as r
 
 MIN_NUM_REGIONS_PER_LABEL = 15
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-f',
+        '--base_data_folder',
+        help='Base data folder for the label files (in csv format)',
+        type=str,
+        default='data/src',
+    )
+    parser.add_argument(
+        '-b',
+        '--bucket',
+        help='Bucket for the Google Storage',
+        type=str,
+        default='photo-id-2021',
+    )
+    parser.add_argument(
+        '-o',
+        '--out_file',
+        help='The file name for the output gcp label file',
+        type=str,
+        default='./gcp_auto_ml_labels.csv',
+    )
+    parser.add_argument(
+        '-n',
+        '--min_num_regions',
+        help='Min. number of regions per label',
+        type=int,
+        default=MIN_NUM_REGIONS_PER_LABEL,
+    )
+    args = parser.parse_args()
 
-    base_data_folder = 'data/src'
+    base_data_folder = args.base_data_folder
+    bucket = args.bucket
+    out_file = args.out_file
+    min_num_regions_per_label = args.min_num_regions
 
     image_sub_folders = [
         'HL20100702_01',
@@ -78,9 +112,9 @@ if __name__ == '__main__':
 
     out_regions: List = []
     for label, regions in regions_dict.items():
-        if len(regions) >= MIN_NUM_REGIONS_PER_LABEL:
+        if len(regions) >= min_num_regions_per_label:
             print(
-                '>>> Label to train: {} with number of iamges: {}'.format(
+                '>>> Label to train: {:12s} with number of images: {}'.format(
                     label, len(regions)
                 )
             )
@@ -92,12 +126,11 @@ if __name__ == '__main__':
     print('>>> Number of regions for label:', total_num)
     print('>>> Number of regions output   :', len(out_regions))
 
-    bucket = 'dolphin-id-gcp'
-    out_file = './gcp_test_3.csv'
     gcp_parser = gcp.GCPParser(
         bucket=bucket,
         out_file=out_file,
     )
 
-    # pprint(out_regions)
     gcp_parser.write(out_regions)
+
+    print('>>> Output label file          :', out_file)
