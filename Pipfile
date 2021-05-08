@@ -12,8 +12,10 @@ yapf = "*"
 rope = "*"
 
 [packages]
+importlib-metadata = "==1.7.0"
 docopt = "*"
 pillow = "*"
+google-cloud-automl = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.6"
